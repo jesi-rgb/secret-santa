@@ -195,10 +195,10 @@
   <p><button type="button" onclick={startOver}>Crear otro sorteo</button></p>
 {:else if step === 'exclusions'}
   <p class="eyebrow">Paso 2 de 2</p>
-  <h1 bind:this={headingEl} tabindex="-1">¿Alguien que no deba tocarse?</h1>
+  <h1 bind:this={headingEl} tabindex="-1">¿Parejas prohibidas?</h1>
   <p>
     Opcional. Si hay parejas, hermanos u otras personas que no deben regalarse entre sí, añádelas aquí.
-    Funciona en los dos sentidos: ninguno de los dos le regalará al otro.
+    Funciona en ambos sentidos: ninguno de los dos le regalará al otro.
   </p>
 
   <form onsubmit={submit} novalidate>
