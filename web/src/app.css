@@ -1,0 +1,604 @@
+@font-face {
+  font-family: 'Geist Serif';
+  src: url('./assets/fonts/GeistSerif-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Allo';
+  src: url('./assets/fonts/Allo-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Allo';
+  src: url('./assets/fonts/Allo-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-title: 'Geist Serif', 'Iowan Old Style', Georgia, serif;
+  --font-body: 'Allo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --paper: #fbf5ea;
+  --card: #fffdf8;
+  --ink: #2b211b;
+  --muted: #6b5c50;
+  --line: #e7dbc7;
+  --line-strong: #cdbb9f;
+  --pine: #1e4b39;
+  --pine-deep: #143526;
+  --berry: #b0242c;
+  --berry-deep: #8c1a21;
+  --gold: #d4a64a;
+  --snow: #fffaf0;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  font-family: var(--font-body);
+  font-size: 100%;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+::selection {
+  background: #f2cfcc;
+  color: var(--ink);
+}
+
+a {
+  color: var(--pine);
+  text-decoration-thickness: from-font;
+  text-underline-position: from-font;
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  color: var(--berry);
+}
+
+.container {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* ---------- Header ---------- */
+
+.site-header {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 140% at 50% 0%, #2a6650 0%, var(--pine) 45%, var(--pine-deep) 100%);
+  color: var(--snow);
+  padding: 2.5rem 0 2.25rem;
+  text-align: center;
+}
+
+/* Two layers of drifting snow; the tile sizes (120px, 80px) both divide the 240px loop. */
+.snow {
+  position: absolute;
+  inset: -240px 0 0 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20px 30px, rgb(255 255 255 / 0.85) 1.5px, transparent 2.5px),
+    radial-gradient(circle at 80px 90px, rgb(255 255 255 / 0.6) 1px, transparent 2px),
+    radial-gradient(circle at 50px 20px, rgb(255 255 255 / 0.45) 1px, transparent 1.75px);
+  background-size:
+    120px 120px,
+    120px 120px,
+    80px 80px;
+  animation: snowfall 18s linear infinite;
+}
+
+@keyframes snowfall {
+  to {
+    transform: translateY(240px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snow {
+    animation: none;
+  }
+}
+
+.brand {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-title);
+  font-weight: 400;
+  font-size: clamp(2.75rem, 9vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--snow);
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--snow);
+}
+
+.tagline {
+  position: relative;
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Candy-cane ribbon under the header. */
+.ribbon {
+  height: 0.5rem;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--berry) 0 0.75rem,
+    var(--snow) 0.75rem 1.5rem
+  );
+}
+
+/* ---------- Page ---------- */
+
+main.container {
+  padding-block: 2rem 3rem;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  box-shadow:
+    0 1px 2px rgb(43 33 27 / 0.04),
+    0 12px 32px -12px rgb(43 33 27 / 0.12);
+}
+
+@media (max-width: 30rem) {
+  .card {
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+}
+
+.card > :first-child {
+  margin-top: 0;
+}
+
+.card > :last-child {
+  margin-bottom: 0;
+}
+
+h1,
+h2 {
+  font-family: var(--font-title);
+  font-weight: 400;
+  color: var(--pine-deep);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2rem, 7vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.75rem;
+}
+
+h2 {
+  font-size: 1.625rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 2rem 0 0.5rem;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+section + section {
+  border-top: 1px dashed var(--line-strong);
+  margin-top: 2rem;
+}
+
+/* ---------- Forms ---------- */
+
+input,
+button {
+  font: inherit;
+}
+
+input {
+  font-size: 1rem;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.625rem;
+  padding: 0.55rem 0.75rem;
+  min-width: 0;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+input::placeholder {
+  color: #9a8a7c;
+}
+
+input[readonly] {
+  background: var(--paper);
+  color: var(--muted);
+}
+
+input:focus-visible {
+  outline: none;
+  border-color: var(--pine);
+  box-shadow: 0 0 0 3px rgb(30 75 57 / 0.2);
+}
+
+[aria-invalid='true'] {
+  border-color: var(--berry);
+}
+
+[aria-invalid='true']:focus-visible {
+  border-color: var(--berry);
+  box-shadow: 0 0 0 3px rgb(176 36 44 / 0.18);
+}
+
+#room-name {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+label,
+legend {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.375rem;
+  color: var(--ink);
+}
+
+fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  min-width: 0;
+}
+
+legend {
+  padding: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+button {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--pine);
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--pine);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+button[type='submit'] {
+  color: #fff;
+  background: var(--berry);
+  border-color: var(--berry);
+  padding-inline: 1.4rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button:hover:not(:disabled) {
+    border-color: var(--pine);
+    background: #f3efe4;
+  }
+
+  button[type='submit']:hover:not(:disabled) {
+    background: var(--berry-deep);
+    border-color: var(--berry-deep);
+  }
+
+  .combobox-toggle:hover:not(:disabled) {
+    background: #f3efe4;
+  }
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.row > input,
+.row > .combobox {
+  flex: 1 1 12rem;
+}
+
+.field {
+  margin-bottom: 1.5rem;
+}
+
+.error {
+  color: var(--berry-deep);
+  font-size: 0.875rem;
+  margin: 0.375rem 0 0;
+}
+
+.muted {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Participants list ---------- */
+
+.participants {
+  list-style: none;
+  counter-reset: person;
+  padding: 0;
+  margin: 0 0 0.75rem;
+}
+
+.participants li {
+  counter-increment: person;
+  position: relative;
+  padding-left: 2.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Keep the Remove button beside its input on narrow screens. */
+.participants .row {
+  flex-wrap: nowrap;
+}
+
+.participants .row > input {
+  flex: 1 1 auto;
+}
+
+.participants li::before {
+  content: counter(person);
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--pine);
+  color: var(--snow);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6rem;
+  text-align: center;
+}
+
+.participants li:nth-child(even)::before {
+  background: var(--berry);
+}
+
+/* ---------- Combobox ---------- */
+
+.combobox {
+  position: relative;
+  min-width: 0;
+}
+
+.combobox input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 2.75rem;
+}
+
+.combobox-toggle {
+  position: absolute;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  right: 0.25rem;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--pine);
+  cursor: pointer;
+}
+
+.combobox-toggle svg {
+  width: 0.75rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 200ms var(--ease-out);
+}
+
+.combobox-toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
+.combobox-popup {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  max-height: 16rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 2px 4px rgb(43 33 27 / 0.06),
+    0 16px 32px -12px rgb(43 33 27 / 0.22);
+  transform-origin: top center;
+  transition:
+    opacity 150ms var(--ease-out),
+    transform 150ms var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .combobox-popup {
+    transition: opacity 150ms ease;
+
+    @starting-style {
+      transform: none;
+    }
+  }
+}
+
+.combobox-option {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.combobox-option[aria-selected='true'] {
+  background: #e9f0ea;
+  color: var(--pine-deep);
+}
+
+.combobox-option[aria-disabled='true'] {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.combobox-label {
+  overflow-wrap: anywhere;
+}
+
+.combobox-hint {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.combobox-check {
+  color: var(--pine);
+  font-weight: 600;
+}
+
+.combobox-empty {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+/* ---------- Reveal ---------- */
+
+.gift-tag {
+  position: relative;
+  text-align: center;
+  background: var(--paper);
+  border: 1px dashed var(--gold);
+  border-radius: 1rem;
+  padding: 1.5rem 1rem 1.75rem;
+  margin: 1rem 0 2rem;
+}
+
+.gift-tag p {
+  margin: 0;
+}
+
+.giftee {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--font-title);
+  font-weight: 400;
+  font-size: clamp(2.25rem, 8vw, 3.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--berry);
+  overflow-wrap: anywhere;
+}
+
+.code {
+  font-size: 3rem;
+  letter-spacing: 0.25rem;
+  line-height: 1.2;
+  margin: 0.5rem 0;
+}
+
+/* ---------- Admin table ---------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+td {
+  font-variant-numeric: tabular-nums;
+}
+
+td button {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.875rem;
+}

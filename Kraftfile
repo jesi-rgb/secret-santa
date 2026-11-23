@@ -1,0 +1,14 @@
+spec: v0.7
+
+targets:
+  - kraftcloud/x86_64
+
+rootfs:
+  source: ./Dockerfile
+  format: erofs
+
+env:
+  PORT: "8080"
+  DATA_DIR: /data
+
+cmd: ["/secret-santa"]
