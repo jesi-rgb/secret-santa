@@ -122,7 +122,7 @@
   <p class="error">{loadError}</p>
   <p><button type="button" onclick={load}>Reintentar</button></p>
 {:else if room}
-  <h1>{room.name || 'Secret Santa'}</h1>
+  <h1>{room.name || 'Amigo invisible'}</h1>
   <p class="muted">{room.revealedCount}/{room.participantCount} descubiertos</p>
 
   {#if result}

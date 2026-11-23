@@ -118,7 +118,7 @@
   <p class="error">{loadError}</p>
   <p><button type="button" onclick={load} disabled={refreshing}>Reintentar</button></p>
 {:else if data}
-  <h1>{data.name || 'Secret Santa'} (organizador)</h1>
+  <h1>{data.name || 'Amigo invisible'} (organizador)</h1>
   <p class="muted">Creado el {formatTime(data.createdAt)}. Esta página nunca muestra quién regala a quién.</p>
 
   <section>

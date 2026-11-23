@@ -149,7 +149,7 @@
 
   <p><button type="button" onclick={startOver}>Crear otro sorteo</button></p>
 {:else}
-  <h1>Crea tu Secret Santa</h1>
+  <h1>Organiza tu amigo invisible</h1>
   <p>
     Añade el nombre de todos. El sorteo se hace al momento y a nadie le puede tocar él mismo. Te
     daremos un enlace para compartir con el grupo.

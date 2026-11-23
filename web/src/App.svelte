@@ -19,7 +19,7 @@
 
 <header class="site-header">
   <div class="snow" aria-hidden="true"></div>
-  <a class="brand" href="/" onclick={linkClick}>Secret Santa</a>
+  <a class="brand" href="/" onclick={linkClick}>Amigo invisible</a>
   <p class="tagline">Sortea nombres · Guarda el secreto</p>
 </header>
 <div class="ribbon" aria-hidden="true"></div>

@@ -85,7 +85,7 @@ a:hover {
   background:
     radial-gradient(120% 140% at 50% 0%, #2a6650 0%, var(--pine) 45%, var(--pine-deep) 100%);
   color: var(--snow);
-  padding: 2.5rem 0 2.25rem;
+  padding: 2.5rem 1rem 2.25rem;
   text-align: center;
 }
 
