@@ -141,6 +141,7 @@ a:hover {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold);
+  text-wrap: balance;
 }
 
 /* Candy-cane ribbon under the header. */
