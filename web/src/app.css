@@ -53,6 +53,8 @@
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
@@ -122,7 +124,7 @@ a:hover {
   display: inline-block;
   font-family: var(--font-title);
   font-weight: 400;
-  font-size: clamp(2.75rem, 9vw, 4rem);
+  font-size: clamp(2.25rem, 10vw, 4rem);
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: var(--snow);
@@ -131,17 +133,6 @@ a:hover {
 
 .brand:hover {
   color: var(--snow);
-}
-
-.tagline {
-  position: relative;
-  margin: 0.5rem 0 0;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold);
-  text-wrap: balance;
 }
 
 /* Candy-cane ribbon under the header. */
@@ -171,9 +162,28 @@ main.container {
 }
 
 @media (max-width: 30rem) {
+  .site-header {
+    padding-block: 1.5rem 1.25rem;
+  }
+
+  .container {
+    padding-inline: 0.75rem;
+  }
+
+  main.container {
+    padding-block: 1rem 2rem;
+  }
+
   .card {
     padding: 1.25rem;
     border-radius: 1rem;
+  }
+
+  /* Primary actions span the width: easy to reach with a thumb. */
+  .row > button[type='submit'],
+  form > button[type='submit'] {
+    flex: 1 1 100%;
+    width: 100%;
   }
 }
 
@@ -183,6 +193,15 @@ main.container {
 
 .card > :last-child {
   margin-bottom: 0;
+}
+
+.eyebrow {
+  margin: 0 0 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--berry);
 }
 
 h1,
@@ -198,6 +217,13 @@ h1 {
   line-height: 1.1;
   letter-spacing: -0.02em;
   margin: 0 0 0.75rem;
+}
+
+/* Room name once the giftee is shown: the gift tag is the focus. */
+h1.room-title-compact {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
 }
 
 h2 {
@@ -307,6 +333,14 @@ button:active:not(:disabled) {
   transform: scale(0.97);
 }
 
+/* Comfortable touch targets on phones and tablets. */
+@media (pointer: coarse) {
+  button:not(.combobox-toggle),
+  input {
+    min-height: 2.75rem;
+  }
+}
+
 button:focus-visible {
   outline: 2px solid var(--pine);
   outline-offset: 2px;
@@ -347,7 +381,10 @@ button[type='submit'] {
   flex-wrap: wrap;
 }
 
-.row > input,
+.row > input {
+  flex: 1 1 8rem;
+}
+
 .row > .combobox {
   flex: 1 1 12rem;
 }
@@ -365,6 +402,12 @@ button[type='submit'] {
 .muted {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+}
+
+.fine-print {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted);
 }
 
 /* ---------- Participants list ---------- */
@@ -506,6 +549,16 @@ button[type='submit'] {
   cursor: pointer;
 }
 
+@media (pointer: coarse) {
+  .combobox-option {
+    padding-block: 0.75rem;
+  }
+}
+
+.combobox-option:active:not([aria-disabled='true']) {
+  background: #dde8df;
+}
+
 .combobox-option[aria-selected='true'] {
   background: #e9f0ea;
   color: var(--pine-deep);
@@ -566,10 +619,16 @@ button[type='submit'] {
 }
 
 .code {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
   font-size: 3rem;
-  letter-spacing: 0.25rem;
   line-height: 1.2;
-  margin: 0.5rem 0;
+  margin: 0.5rem 0 1rem;
+}
+
+.check-code {
+  text-align: center;
 }
 
 /* ---------- Admin table ---------- */
@@ -602,4 +661,28 @@ td {
 td button {
   padding: 0.35rem 0.8rem;
   font-size: 0.875rem;
+}
+
+.cell-action {
+  text-align: right;
+}
+
+.cell-note {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.narrow-only {
+  display: none;
+}
+
+@media (max-width: 30rem) {
+  .wide-only {
+    display: none;
+  }
+
+  .narrow-only {
+    display: block;
+  }
 }

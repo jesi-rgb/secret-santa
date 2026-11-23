@@ -122,7 +122,7 @@
   <p class="error">{loadError}</p>
   <p><button type="button" onclick={load}>Reintentar</button></p>
 {:else if room}
-  <h1>{room.name || 'Amigo invisible'}</h1>
+  <h1 class:room-title-compact={result}>{room.name || 'Amigo invisible'}</h1>
   <p class="muted">{room.revealedCount}/{room.participantCount} descubiertos</p>
 
   {#if result}
@@ -132,12 +132,14 @@
         <strong class="giftee">{result.giftee}</strong>
       </div>
 
-      <h2>Tu código de comprobación</h2>
-      <p class="code">
-        {#each result.code as emoji}<span>{emoji}</span>{/each}
-      </p>
-      <CopyButton text={result.codeText} label="Copiar código" />
-      <p>
+      <div class="check-code">
+        <h2>Tu código de comprobación</h2>
+        <p class="code">
+          {#each result.code as emoji}<span>{emoji}</span>{/each}
+        </p>
+        <CopyButton text={result.codeText} label="Copiar código" />
+      </div>
+      <p class="fine-print">
         Copia y pega este código en el grupete de Whatsapp. 
         Todos deberíamos tener un código distinto. Si no es el caso, probablemente dos personas tienen el mismo destinatario.
       </p>
@@ -151,7 +153,7 @@
             id="your-name"
             label="Nombres"
             bind:value={name}
-            placeholder="Empieza a escribir tu nombre…"
+            placeholder="Escribe tu nombre…"
             invalid={Boolean(formError)}
             options={room.participants.map((p) => ({
               value: p.name,

@@ -94,7 +94,9 @@
 
   function formatTime(iso: string): string {
     const date = new Date(iso);
-    return Number.isNaN(date.getTime()) ? iso : date.toLocaleString('es');
+    return Number.isNaN(date.getTime())
+      ? iso
+      : date.toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
   }
 
   function selectAll(event: FocusEvent & { currentTarget: HTMLInputElement }) {
@@ -118,7 +120,8 @@
   <p class="error">{loadError}</p>
   <p><button type="button" onclick={load} disabled={refreshing}>Reintentar</button></p>
 {:else if data}
-  <h1>{data.name || 'Amigo invisible'} (organizador)</h1>
+  <p class="eyebrow">Panel de organizador</p>
+  <h1>{data.name || 'Amigo invisible'}</h1>
   <p class="muted">Creado el {formatTime(data.createdAt)}. Esta página nunca muestra quién regala a quién.</p>
 
   <section>
@@ -142,18 +145,25 @@
       <thead>
         <tr>
           <th scope="col">Nombre</th>
-          <th scope="col">Descubierto</th>
-          <th scope="col">Fecha</th>
-          <th scope="col"><span class="muted">Acciones</span></th>
+          <th scope="col" class="wide-only">Descubierto</th>
+          <th scope="col" class="wide-only">Fecha</th>
+          <th scope="col" class="cell-action"><span class="muted">Acciones</span></th>
         </tr>
       </thead>
       <tbody>
         {#each data.participants as participant (participant.id)}
           <tr>
-            <td>{participant.name}</td>
-            <td>{participant.revealed ? '✓' : '—'}</td>
-            <td>{participant.revealedAt ? formatTime(participant.revealedAt) : ''}</td>
             <td>
+              {participant.name}
+              <span class="cell-note narrow-only">
+                {participant.revealedAt
+                  ? `Descubierto · ${formatTime(participant.revealedAt)}`
+                  : 'Pendiente'}
+              </span>
+            </td>
+            <td class="wide-only">{participant.revealed ? '✓' : '—'}</td>
+            <td class="wide-only">{participant.revealedAt ? formatTime(participant.revealedAt) : ''}</td>
+            <td class="cell-action">
               {#if participant.revealed}
                 <button
                   type="button"
