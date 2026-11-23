@@ -315,6 +315,39 @@ func TestAPICreateValidation(t *testing.T) {
 	}
 }
 
+func TestAPIExclusions(t *testing.T) {
+	c := newTestClient(t)
+	names := []string{"Ana", "Bruno", "Carla", "Diego"}
+	partner := map[string]string{"Ana": "Bruno", "Bruno": "Ana", "Carla": "Diego", "Diego": "Carla"}
+	// Names in exclusions match like reveals: case and accents are ignored.
+	body := map[string]any{
+		"participants": names,
+		"exclusions":   [][]string{{"ana", "BRUNO"}, {"Carla", "Diego"}},
+	}
+	for range 20 {
+		var room createRoomResponse
+		if status, raw := c.do("POST", "/api/rooms", "", body, &room); status != http.StatusCreated {
+			t.Fatalf("create room: %d %s", status, raw)
+		}
+		for _, name := range names {
+			res := c.reveal(room.RoomID, name)
+			if res.Giftee == partner[name] {
+				t.Fatalf("%s drew excluded partner %s", name, res.Giftee)
+			}
+		}
+	}
+
+	bad := func(exclusions any, code string) {
+		t.Helper()
+		c.expectError("POST", "/api/rooms", "", map[string]any{"participants": names, "exclusions": exclusions},
+			http.StatusBadRequest, code)
+	}
+	bad([][]string{{"Ana", "Zoe"}}, "invalid_exclusion")
+	bad([][]string{{"Ana", "ana"}}, "invalid_exclusion")
+	bad([][]string{{"Ana"}}, "invalid_exclusion")
+	bad([][]string{{"Ana", "Bruno"}, {"Ana", "Carla"}, {"Ana", "Diego"}}, "impossible_exclusions")
+}
+
 func TestAPIBodyLimitAndUnknownRoutes(t *testing.T) {
 	c := newTestClient(t)
 	big := map[string]any{"participants": []string{strings.Repeat("a", 70<<10), "b", "c"}}

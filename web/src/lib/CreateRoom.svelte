@@ -2,6 +2,8 @@
   import { tick } from 'svelte';
   import { createRoom, errorMessage, type RoomCreated } from './api';
   import CopyButton from './CopyButton.svelte';
+  import { canDraw } from './draw';
+  import Exclusions, { type ExclusionPair } from './Exclusions.svelte';
   import {
     MAX_NAME_LENGTH,
     MAX_PARTICIPANTS,
@@ -25,7 +27,10 @@
   let submitting = $state(false);
   let serverError = $state('');
   let created = $state<RoomCreated | null>(null);
+  let step = $state<'names' | 'exclusions'>('names');
+  let exclusions = $state<ExclusionPair[]>([]);
   let listEl: HTMLOListElement | undefined = $state();
+  let headingEl: HTMLHeadingElement | undefined = $state();
 
   /** Per-row error message ('' when valid). Blank rows are ignored on submit. */
   const rowErrors = $derived.by(() => {
@@ -63,6 +68,23 @@
 
   const hasErrors = $derived(Boolean(countError || roomNameError || rowErrors.some(Boolean)));
 
+  const people = $derived(
+    rows.flatMap((row) => {
+      const name = row.value.trim();
+      return name ? [{ id: row.id, name }] : [];
+    }),
+  );
+
+  const impossible = $derived.by(() => {
+    const index = new Map(people.map((person, i) => [person.id, i]));
+    const pairs = exclusions.flatMap(({ a, b }) => {
+      const i = index.get(a);
+      const j = index.get(b);
+      return i === undefined || j === undefined ? [] : [[i, j] as const];
+    });
+    return !canDraw(people.length, pairs);
+  });
+
   const shareUrl = $derived(created ? `${location.origin}/${created.roomId}` : '');
   const adminPath = $derived(created ? `/${created.roomId}/admin#${created.adminToken}` : '');
   const adminUrl = $derived(created ? `${location.origin}${adminPath}` : '');
@@ -90,16 +112,37 @@
     else focusRow(index + 1);
   }
 
-  async function submit(event: SubmitEvent) {
+  async function goTo(next: typeof step) {
+    step = next;
+    serverError = '';
+    await tick();
+    window.scrollTo(0, 0);
+    headingEl?.focus();
+  }
+
+  function toExclusions(event: SubmitEvent) {
     event.preventDefault();
     attempted = true;
+    if (hasErrors) return;
+    // Drop exclusions for people removed or blanked since the last visit.
+    const ids = new Set(people.map((person) => person.id));
+    exclusions = exclusions.filter(({ a, b }) => ids.has(a) && ids.has(b));
+    void goTo('exclusions');
+  }
+
+  async function submit(event: SubmitEvent) {
+    event.preventDefault();
     serverError = '';
-    if (hasErrors || submitting) return;
+    if (impossible || submitting) return;
 
     submitting = true;
     try {
-      const participants = rows.map((row) => row.value.trim()).filter(Boolean);
-      const result = await createRoom(participants, roomName.trim() || undefined);
+      const nameOf = new Map(people.map((person) => [person.id, person.name]));
+      const result = await createRoom({
+        participants: people.map((person) => person.name),
+        name: roomName.trim() || undefined,
+        exclusions: exclusions.map(({ a, b }) => [nameOf.get(a)!, nameOf.get(b)!]),
+      });
       storage.set(adminKey(result.roomId), result.adminToken);
       created = result;
     } catch (err) {
@@ -113,6 +156,8 @@
     created = null;
     roomName = '';
     rows = initialRows();
+    exclusions = [];
+    step = 'names';
     attempted = false;
     serverError = '';
   }
@@ -148,14 +193,38 @@
   </section>
 
   <p><button type="button" onclick={startOver}>Crear otro sorteo</button></p>
-{:else}
-  <h1>Organiza tu amigo invisible</h1>
+{:else if step === 'exclusions'}
+  <p class="eyebrow">Paso 2 de 2</p>
+  <h1 bind:this={headingEl} tabindex="-1">¿Alguien que no deba tocarse?</h1>
   <p>
-    Añade el nombre de todos. El sorteo se hace al momento y a nadie le puede tocar él mismo. Te
-    daremos un enlace para compartir con el grupo.
+    Opcional. Si hay parejas, hermanos u otras personas que no deben regalarse entre sí, añádelas aquí.
+    Funciona en los dos sentidos: ninguno de los dos le regalará al otro.
   </p>
 
   <form onsubmit={submit} novalidate>
+    <Exclusions {people} bind:pairs={exclusions} />
+
+    {#if impossible}
+      <p class="error" role="alert">Con estas exclusiones no hay forma de hacer el sorteo. Quita alguna.</p>
+    {/if}
+    {#if serverError}<p class="error" role="alert">{serverError}</p>{/if}
+
+    <div class="row form-actions">
+      <button type="button" onclick={() => goTo('names')} disabled={submitting}>Atrás</button>
+      <button type="submit" disabled={submitting || impossible}>
+        {submitting ? 'Creando…' : 'Crear sorteo'}
+      </button>
+    </div>
+  </form>
+{:else}
+  <p class="eyebrow">Paso 1 de 2</p>
+  <h1 bind:this={headingEl} tabindex="-1">Organiza tu amigo invisible</h1>
+  <p>
+    Añade el nombre de todos. A nadie le puede tocar él mismo y, en el siguiente paso, podrás evitar
+    otros emparejamientos, como parejas o hermanos. Te daremos un enlace para compartir con el grupo.
+  </p>
+
+  <form onsubmit={toExclusions} novalidate>
     <div class="field">
       <label for="room-name">Nombre del sorteo (opcional)</label>
       <input
@@ -200,8 +269,6 @@
       {#if attempted && countError}<p class="error">{countError}</p>{/if}
     </fieldset>
 
-    {#if serverError}<p class="error" role="alert">{serverError}</p>{/if}
-
-    <button type="submit" disabled={submitting}>{submitting ? 'Creando…' : 'Crear sorteo'}</button>
+    <button type="submit">Siguiente</button>
   </form>
 {/if}

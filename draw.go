@@ -22,29 +22,55 @@ func randIntn(n int) (int, error) {
 	return int(v.Int64()), nil
 }
 
-// derangement returns a uniformly random permutation p of [0, n) with
-// p[i] != i for every i. Participant i gifts participant p[i].
-// It shuffles with Fisher–Yates and rejects shuffles that have fixed points;
-// the expected number of attempts is about e.
-func derangement(n int) ([]int, error) {
+// ErrImpossibleDraw means no assignment avoids every self-gift and exclusion.
+var ErrImpossibleDraw = errors.New("no draw satisfies the exclusions")
+
+// maxDrawAttempts bounds rejection sampling in drawAssignment. Without
+// exclusions about e attempts are expected; a few exclusions per person keep
+// the expected count far below this.
+const maxDrawAttempts = 5000
+
+// shuffle permutes p uniformly at random (Fisher–Yates).
+func shuffle(p []int) error {
+	for i := len(p) - 1; i > 0; i-- {
+		j, err := randIntn(i + 1)
+		if err != nil {
+			return err
+		}
+		p[i], p[j] = p[j], p[i]
+	}
+	return nil
+}
+
+// drawAssignment returns a random permutation p of [0, n) where participant i
+// gifts participant p[i], p[i] != i, and excluded[i][p[i]] is false.
+// excluded is nil (no exclusions) or n×n.
+//
+// It returns ErrImpossibleDraw when no such permutation exists. Otherwise it
+// samples uniformly by rejection (shuffle until valid). If that keeps failing
+// because the exclusions leave very few valid draws, it returns a randomized
+// matching instead: valid, but not exactly uniform.
+func drawAssignment(n int, excluded [][]bool) ([]int, error) {
 	if n < 2 {
-		return nil, errors.New("derangement needs at least 2 elements")
+		return nil, errors.New("a draw needs at least 2 participants")
+	}
+	allowed := func(i, j int) bool { return i != j && (excluded == nil || !excluded[i][j]) }
+
+	fallback, err := randomMatching(n, allowed)
+	if err != nil {
+		return nil, err
 	}
 	p := make([]int, n)
-	for {
+	for range maxDrawAttempts {
 		for i := range p {
 			p[i] = i
 		}
-		for i := n - 1; i > 0; i-- {
-			j, err := randIntn(i + 1)
-			if err != nil {
-				return nil, err
-			}
-			p[i], p[j] = p[j], p[i]
+		if err := shuffle(p); err != nil {
+			return nil, err
 		}
 		ok := true
 		for i, v := range p {
-			if i == v {
+			if !allowed(i, v) {
 				ok = false
 				break
 			}
@@ -53,6 +79,62 @@ func derangement(n int) ([]int, error) {
 			return p, nil
 		}
 	}
+	return fallback, nil
+}
+
+// randomMatching finds an assignment using only allowed giver→giftee pairs, by
+// augmenting paths (Kuhn's algorithm) over randomly ordered givers and
+// candidates. It returns ErrImpossibleDraw if none exists.
+func randomMatching(n int, allowed func(i, j int) bool) ([]int, error) {
+	candidates := make([][]int, n)
+	for i := range n {
+		for j := range n {
+			if allowed(i, j) {
+				candidates[i] = append(candidates[i], j)
+			}
+		}
+		if err := shuffle(candidates[i]); err != nil {
+			return nil, err
+		}
+	}
+	order := make([]int, n)
+	for i := range order {
+		order[i] = i
+	}
+	if err := shuffle(order); err != nil {
+		return nil, err
+	}
+
+	giverOf := make([]int, n) // giftee → giver; -1 while unassigned
+	for j := range giverOf {
+		giverOf[j] = -1
+	}
+	visited := make([]bool, n)
+	var augment func(i int) bool
+	augment = func(i int) bool {
+		for _, j := range candidates[i] {
+			if visited[j] {
+				continue
+			}
+			visited[j] = true
+			if giverOf[j] < 0 || augment(giverOf[j]) {
+				giverOf[j] = i
+				return true
+			}
+		}
+		return false
+	}
+	for _, i := range order {
+		clear(visited)
+		if !augment(i) {
+			return nil, ErrImpossibleDraw
+		}
+	}
+	p := make([]int, n)
+	for j, i := range giverOf {
+		p[i] = j
+	}
+	return p, nil
 }
 
 // normalizeName folds a name for matching: Unicode NFD, combining marks

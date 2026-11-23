@@ -74,6 +74,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_participants: `Un sorteo necesita entre ${MIN_PARTICIPANTS} y ${MAX_PARTICIPANTS} participantes.`,
   duplicate_name: 'Hay nombres repetidos (no se distinguen mayúsculas ni tildes).',
   request_too_large: 'Hay demasiados datos. Prueba con menos nombres o nombres más cortos.',
+  invalid_exclusion: 'Alguna exclusión no es válida. Revisa la lista.',
+  impossible_exclusions: 'Con estas exclusiones no hay forma de hacer el sorteo. Quita alguna.',
 };
 
 export function errorMessage(err: unknown): string {
@@ -127,10 +129,21 @@ async function request<T>(path: string, { method = 'GET', body, token }: Request
 
 const room = (roomId: string) => `/api/rooms/${encodeURIComponent(roomId)}`;
 
-export function createRoom(participants: string[], name?: string): Promise<RoomCreated> {
+export interface NewRoom {
+  participants: string[];
+  name?: string;
+  /** Pairs of participant names that must not gift each other, in either direction. */
+  exclusions?: [string, string][];
+}
+
+export function createRoom({ participants, name, exclusions }: NewRoom): Promise<RoomCreated> {
   return request<RoomCreated>('/api/rooms', {
     method: 'POST',
-    body: name ? { name, participants } : { participants },
+    body: {
+      participants,
+      ...(name ? { name } : {}),
+      ...(exclusions?.length ? { exclusions } : {}),
+    },
   });
 }
 

@@ -100,6 +100,9 @@ func hasControl(s string) bool {
 type createRoomRequest struct {
 	Name         string   `json:"name"`
 	Participants []string `json:"participants"`
+	// Exclusions lists pairs of participant names that must not gift each
+	// other, in either direction (e.g. partners or siblings).
+	Exclusions [][]string `json:"exclusions"`
 }
 
 type createRoomResponse struct {
@@ -145,7 +148,38 @@ func (a *api) createRoom(w http.ResponseWriter, r *http.Request) {
 		names[i], norms[i] = name, norm
 	}
 
-	perm, err := derangement(len(names))
+	var excluded [][]bool
+	if len(req.Exclusions) > 0 {
+		index := make(map[string]int, len(norms))
+		for i, n := range norms {
+			index[n] = i
+		}
+		excluded = make([][]bool, len(names))
+		for i := range excluded {
+			excluded[i] = make([]bool, len(names))
+		}
+		for _, pair := range req.Exclusions {
+			if len(pair) != 2 {
+				writeError(w, http.StatusBadRequest, "invalid_exclusion", "Each exclusion must be a pair of two names.")
+				return
+			}
+			a, okA := index[normalizeName(pair[0])]
+			b, okB := index[normalizeName(pair[1])]
+			if !okA || !okB || a == b {
+				writeError(w, http.StatusBadRequest, "invalid_exclusion",
+					"Each exclusion must name two different participants.")
+				return
+			}
+			excluded[a][b], excluded[b][a] = true, true
+		}
+	}
+
+	perm, err := drawAssignment(len(names), excluded)
+	if errors.Is(err, ErrImpossibleDraw) {
+		writeError(w, http.StatusBadRequest, "impossible_exclusions",
+			"No draw satisfies these exclusions; remove some of them.")
+		return
+	}
 	if err != nil {
 		internalError(w, err)
 		return
